@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Chat</string>
+    <string name="title_chat">ChatBluetooth</string>
+    <string name="title_Vinculacion">Search Device</string>
+</resources>
