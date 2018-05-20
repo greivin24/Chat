@@ -1,33 +1,29 @@
 package com.example.chat.controllers;
 
-import android.Manifest;
-import android.app.AutomaticZenRule;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v4.content.ContextCompat;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,35 +33,52 @@ import com.example.chat.adapters.MessageListAdapter;
 import com.example.chat.utilities.ArrayListDevices;
 import com.example.chat.utilities.ArrayListMessages;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.UUID;
+
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "PrincipalActivity";
-    public static final int ESTADO_CONEXION = 1;
-    public static final int LEER_MENSAJE = 2;
-    public static final int ESCRIBIR_MENSAJE = 3;
-    public static final int DISPOSITIVO_CONECTADO = 4;
-    public static final int DISPOSITIVO_ENLAZADO = 12;
-    public static BluetoothDevice dispositivoEnlazado;
+    private static Boolean IS_SERVER = false;
+    private static int BACKGROUND = 1;
 
-    public static Boolean VISIBLE = false;
+    private static final String APP_NAME = "BluetoothChatApp";
+    private static final UUID MY_UUID = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
+
+    public static final int LISTENING = 1;
+    public static final int CONNECTING = 2;
+    public static final int CONNECTED = 3;
+    public static final int CONNECTION_FAILED = 4;
+    public static final int LEER = 5;
+    public static final int ESCRIBIR = 6;
 
     BluetoothAdapter bluetoothAdapter;
-    BluetoothDevice diviceConectado;
-    ChatController chatController;
 
     LinearLayout linearLayoutChat, linearLayoutDevice;
     ListView listViewChat, listViewDevices;
     MenuItem menuItem;
 
-    TextView status, conect;
+    //---- RadioButton
+    RadioButton radioButtonServer;
+    TextView status;
     //----ImageView del chat y del search
-    ImageView imageViewChat, imageViewSearch;
+    ImageView imageViewSend, imageViewChat, imageViewSearch;
 
+    //---EidtText
+    EditText editTextMessage;
     //------------------ ArrayListDevices Y ArrayListMessages Y SUS ADAPTERS
     ArrayListMessages arrayListMessages;
     MessageListAdapter messageListAdapter;
     ArrayListDevices arrayListDevices;
     DeviceListAdapter deviceListAdapter;
+
+    //---opcion3
+    SendReceive sendReceive;
+
+    // contra
+    ConstraintLayout mainLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,21 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        //-----ImageView casting
-        imageViewChat = (ImageView) findViewById(R.id.imageViewChat);
-        imageViewSearch = (ImageView) findViewById(R.id.imageViewSearch);
-
-        //----LinearLayout de los tab
-        linearLayoutChat = (LinearLayout) findViewById(R.id.layout_chat);
-        linearLayoutDevice = (LinearLayout) findViewById(R.id.layout_device);
-
-        //----ListView del devices y los de chat
-        listViewChat = (ListView) findViewById(R.id.list_item_mensaje);
-        listViewDevices = (ListView) findViewById(R.id.list_item_divices);
-
-        //----TextView conect y status
-        conect = (TextView) findViewById(R.id.txv_conectado);
-        status = (TextView) findViewById(R.id.txv_estado);
+        findViewByIdElemets();
 
         //----Enlaze de los listViewDevices y listViewMensages
         messageListAdapter = new MessageListAdapter(getApplicationContext(),arrayListMessages.getArrayListMessages());
@@ -100,12 +99,37 @@ public class MainActivity extends AppCompatActivity {
         deviceListAdapter = new DeviceListAdapter(getApplicationContext(), R.layout.item_device, arrayListDevices.getArrayListDevices());
         listViewDevices.setAdapter(deviceListAdapter);
 
+        setOnClickListenerElements();
 
-        //Broadcasts when bond state changes (ie:pairing)
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        registerReceiver(broadcastReceiverBonded, filter);
+    }
 
-        // eventos click de chat y search
+    private void setOnClickListenerElements() {
+        radioButtonServer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ServerClass serverClass = new ServerClass();
+                if(!IS_SERVER){
+                    serverClass.start();
+                    IS_SERVER = true;
+                }else{
+                    serverClass.cancel();
+                    radioButtonServer.setChecked(false);
+                    IS_SERVER = false;
+                }
+            }
+        });
+
+        imageViewSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!editTextMessage.getText().toString().equals("")) {
+                    byte[] send = editTextMessage.getText().toString().getBytes();
+                    sendReceive.write(send);
+                    editTextMessage.setText("");
+                }
+            }
+        });
+
         imageViewChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,53 +145,55 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void findViewByIdElemets() {
+
+        //---mainLayouta
+        mainLayout = (ConstraintLayout) findViewById(R.id.container);
+        //----- Radio Button castin
+        radioButtonServer = (RadioButton)findViewById(R.id.radioButtonServidor);
+        radioButtonServer.setChecked(false);
+        //-----ImageView casting
+        imageViewSend = (ImageView) findViewById(R.id.imageViewSend);
+        imageViewChat = (ImageView) findViewById(R.id.imageViewChat);
+        imageViewSearch = (ImageView) findViewById(R.id.imageViewSearch);
+
+        //---EditText casting
+        editTextMessage = (EditText) findViewById(R.id.editTextMessage);
+        //----LinearLayout de los tab
+        linearLayoutChat = (LinearLayout) findViewById(R.id.layout_chat);
+        linearLayoutDevice = (LinearLayout) findViewById(R.id.layout_device);
+
+        //----ListView del devices y los de chat
+        listViewChat = (ListView) findViewById(R.id.list_item_mensaje);
+        listViewDevices = (ListView) findViewById(R.id.list_item_divices);
+
+        //----TextView status
+        status = (TextView) findViewById(R.id.txv_estado);
+    }
+
     private AdapterView.OnItemClickListener deviceClick = new AdapterView.OnItemClickListener(){
         public void onItemClick(AdapterView parent, View v, int position, long id) {
-            //first cancel discovery because its very memory intensive.
             bluetoothAdapter.cancelDiscovery();
-            String deviceName = arrayListDevices.getArrayListDevicesById(position).getName();
-            String deviceAddress = arrayListDevices.getArrayListDevicesById(position).getAddress();
-
-            Toast.makeText(getApplicationContext(), "nombre: "+deviceName+" mac: "+deviceAddress, Toast.LENGTH_SHORT).show();
-
-            //create the bond.
-            //NOTE: Requires API 17+? I think this is JellyBean
-            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2){
-                Log.d(TAG, "Trying to pair with " + deviceName);
-                arrayListDevices.getArrayListDevicesById(position).createBond();
-            }
-
-            if(arrayListDevices.getArrayListDevicesById(position).getBondState() == DISPOSITIVO_ENLAZADO){
-                dispositivoEnlazado = arrayListDevices.getArrayListDevicesById(position);
-                Log.d(TAG, "enlazado con: " + dispositivoEnlazado.getName());
-                chatBluetooth();
-            }
+            ClientClass clientClass = new ClientClass(arrayListDevices.getArrayListDevicesById(position));
+            clientClass.start();
+            status.setText("Connecting");
+            chatBluetooth();
         }
     };
 
     public void chatBluetooth(){
-        //Si el controlador del chat se encuentra desconectado entonces lo iniciamos.
-        if (chatController != null && chatController.getState() == ChatController.STATE_NONE) {
-            chatController.start();
-        }
-        //Si ya tenemos el dispositivo con el que vamos a enlazar entonces nos conectamos
-        if(dispositivoEnlazado != null) {
-            conect.setText("Conectado con: "+dispositivoEnlazado.getName());
-            BluetoothDevice dispositivo = bluetoothAdapter.getRemoteDevice(dispositivoEnlazado.getAddress());
-            chatController.connect(dispositivo);
-        }
         bluetoothAdapter.cancelDiscovery();
         linearLayoutDevice.setVisibility(View.GONE);
         linearLayoutChat.setVisibility(View.VISIBLE);
     }
 
     public void searchBluetooth(){
+        arrayListMessages.clearArrayListMessage();
         linearLayoutChat.setVisibility(View.GONE);
         linearLayoutDevice.setVisibility(View.VISIBLE);
         Log.d(TAG, "searchDevices: Looking for unpaired devices.");
         arrayListDevices.clearArrayListDevices();
         if(bluetoothAdapter.isDiscovering()){
-            checkBTPermissions();
             Log.d(TAG, "searchDevices: Canceling discovery.");
             bluetoothAdapter.cancelDiscovery();
             bluetoothAdapter.startDiscovery();
@@ -179,7 +205,6 @@ public class MainActivity extends AppCompatActivity {
             this.registerReceiver(broadcastReceiverDiscover, intentFilter);
         }
         if(!bluetoothAdapter.isDiscovering()){
-            checkBTPermissions();
             bluetoothAdapter.startDiscovery();
             //Registramos el evento de cuando se descubre un dispositivo
             IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -187,23 +212,6 @@ public class MainActivity extends AppCompatActivity {
             //Registramos el evento de cuando finaliza la busqueda de dispositivos
             intentFilter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
             this.registerReceiver(broadcastReceiverDiscover, intentFilter);
-        }
-    }
-
-
-    private void checkBTPermissions() {
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP){
-            int permissionCheck = 0;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                permissionCheck = this.checkSelfPermission("Manifest.permission.ACCESS_FINE_LOCATION");
-                permissionCheck += this.checkSelfPermission("Manifest.permission.ACCESS_COARSE_LOCATION");
-                if (permissionCheck != 0) {
-
-                    this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001); //Any number
-                }
-            }
-        }else{
-            Log.d(TAG, "checkBTPermissions: No need to check permissions. SDK version < LOLLIPOP.");
         }
     }
 
@@ -218,11 +226,6 @@ public class MainActivity extends AppCompatActivity {
         if (!bluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivity(enableIntent);
-        } else {
-            //Si el Bluetooth está activado entonces se crea un nuevo el controlador del chat
-            if (chatController == null) {
-                chatController = new ChatController(handler);
-            }
         }
     }
 
@@ -230,17 +233,11 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         unregisterReceiver(broadcastReceiverDiscover);
-        unregisterReceiver(broadcastReceiverBonded);
         bluetoothAdapter.disable();
-        if (chatController != null) {
-            chatController.stop();
-        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Cuando se inicia el Activity se llama a esta
-        // función para crear el menú de acuerdo al recurso
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         return true;
@@ -248,17 +245,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Captura de eventos de acuerdo al item seleccionado en el menú
-        // este item es definido de acuerdo al android:id en el menu.xml
         menuItem = item;
         switch (item.getItemId()) {
             case R.id.men_visible:
-                if(item.getIcon().equals(R.drawable.ic_visibility_off_black_24dp)){
-                    item.setIcon(R.drawable.ic_visibility_black_24dp);
-                    Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-                    discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 3);
-                    startActivity(discoverableIntent);
-                }
+                Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 60);
+                startActivity(discoverableIntent);
+
+                IntentFilter intentFilter = new IntentFilter(bluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
+                registerReceiver(broadcastReceiverDiscover,intentFilter);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -266,121 +261,218 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * Broadcast Receiver for listing devices that are not yet paired
-     * -Executed by btnDiscover() method.
-     */
     private final BroadcastReceiver broadcastReceiverDiscover = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            //Obtenemos la acción que ejecuta el Bluethooth
             String accion = intent.getAction();
-            //Si se encontró un nuevo dispositvo
             if (BluetoothDevice.ACTION_FOUND.equals(accion)) {
-                //Obtenemos el dispostivo encontrado
                 BluetoothDevice device = intent.getParcelableExtra (BluetoothDevice.EXTRA_DEVICE);
                 arrayListDevices.insertInArrayListDevices(device);
-                Log.d(TAG, "onReceive: " + device.getName() + ": " + device.getAddress());
                 deviceListAdapter.notifyDataSetChanged();
-                //Si finalizó la busqueda de dispositivos
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(accion)) {
-                Toast.makeText(getApplicationContext(),"ACTION_DISCOVERY_FINISHED",Toast.LENGTH_SHORT).show(); // termino la busqueda de devices
-                //Si hay cambio en el modo de exploración bluetooth
-            } else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(accion)) {
-                //Obtenemos el modo de escaneo en el que se encuentra nuestro dispositivo
-                int modo = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, BluetoothAdapter.ERROR);
-                //Si el dispositivo se encuentra visible
-                if (modo == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-                    Toast.makeText(getApplicationContext(),"VISIBLE",Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getApplicationContext(),"NO ES VISIBLE",Toast.LENGTH_SHORT).show();
-                    menuItem.setIcon(R.drawable.ic_visibility_off_black_24dp);
-                }
+                Toast.makeText(getApplicationContext(),"Tiempo de Busqueda Agotado",Toast.LENGTH_SHORT).show(); // termino la busqueda de devices
             }
-        }
-    };
+            if (accion.equals(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED)) {
+                int mode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, BluetoothAdapter.ERROR);
+                switch (mode) {
+                    //Device is in Discoverable Mode
+                    case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
+                        menuItem.setIcon(R.drawable.ic_visibility_black_24dp);
+                        break;
+                    //Device not in discoverable mode
+                    case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
+                        Toast.makeText(getApplicationContext(),"Tiempo de Visibilidad de Dispositivo Agotado",Toast.LENGTH_SHORT).show();
+                        menuItem.setIcon(R.drawable.ic_visibility_off_black_24dp);
+                        break;
+                }
 
-    /**
-     * Broadcast Receiver that detects bond state changes (Pairing status changes)
-     */
-    private final BroadcastReceiver broadcastReceiverBonded = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            //Obtenemos la acción que ejecuta el Bluethooth
-            String accion = intent.getAction();
-            //Si hay un cambio en el estado de enlace de un dispositivo
-            if(accion.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
-                BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                //Si el enlace está listo
-                if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
-                    Toast.makeText(getBaseContext(), "Dispositivo vinculado", Toast.LENGTH_SHORT).show();
-                    //Nos redirigiimos al chat
-                   // ChatActivity.dispositivoEnlazado = dispositivoEnlazado;
-                    //finish();
-                }
-                //Si se está creando un enlace
-                if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDING) {
-                    Toast.makeText(getBaseContext(), "Vinculando dispositivo...", Toast.LENGTH_SHORT).show();
-                }
-                //Si se rompio el enlace
-                if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE) {
-                    Toast.makeText(getBaseContext(), "Dispositivo desvinculado", Toast.LENGTH_SHORT).show();
-                }
             }
         }
     };
 
 
-
-    //Con Handler podemos enviar y recibir mensajes asociados al hilo ChatController
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            switch (msg.what) {
-                case ESTADO_CONEXION:
-                    //Si el dispositivo se encuentra conectado entonces mostramos el nombre del dispositivo con el que se encuentra enlazado
-                    if(msg.arg1 == ChatController.STATE_CONNECTED) {
-                        conect.setText(diviceConectado.getName());
-                        //Si el dispositivo se encuentra creando conexión entonces mostramos que se está conectando
-                    }else if(msg.arg1 == ChatController.STATE_CONNECTING) {
-                        conect.setText("Conectando...");
-                        //Si el dispositivo se encuentra desconectado entonces indicamos que no hay vínculo
-                    }else if(msg.arg1 == ChatController.STATE_NONE) {
-                        conect.setText("No vinculado");
-                    }
+            switch (msg.what){
+                case LISTENING:
+                    status.setText("Esparando..");
                     break;
-                case ESCRIBIR_MENSAJE:
-                    //Obtenemos el mensaje enviado para poderlo imprimir en pantalla
-                    byte[] mensajeEnviado = (byte[]) msg.obj;
-                    //Convertimos el mensaje enviado a String
-                    String s_mensajeEnviado = new String(mensajeEnviado);
-                    //Creamos un nuevo mensaje de salida para mostrarlo en el chat
-                    arrayListMessages.insertInArrayListMessage(new com.example.chat.models.Message(s_mensajeEnviado,true));
-                    //Actualizamos el adaptador de mensajería para que el mensaje aparezca en pantalla
+                case CONNECTING:
+                    status.setText("Conectando..");
+                    break;
+                case CONNECTED:
+                    status.setText("Conectado");
+                    break;
+                case CONNECTION_FAILED:
+                    status.setText("Conexion Fallida");
+                    break;
+                case ESCRIBIR:
+                    status.setText("Vinculado");
+                    byte[] recibido = (byte[]) msg.obj;
+                    String rMessage = new String(recibido);
+                    arrayListMessages.insertInArrayListMessage(new com.example.chat.models.Message(rMessage,true));
                     messageListAdapter.notifyDataSetChanged();
-                    //Reproducimos el sonido para el mensaje
-                    //sonidoMensaje.start();
                     break;
-                case LEER_MENSAJE:
-                    //Obtenemos el mensaje recibido para poderlo imprimir en pantalla
-                    byte[] mensajeRecibido = (byte[]) msg.obj;
-                    //Convertimos el mensaje enviado a String.// msg.arg1 es el tamaño del mensaje recibido y se usa para crear el String con
-                    //ese tamaño ya que msg.obj es de un tamaño de 1024 byte y hay que descartar los datos basura
-                    String readMessage = new String(mensajeRecibido, 0, msg.arg1);
-                    //Creamos un nuevo mensaje de entrada para mostrarlo en el chat
-                    arrayListMessages.insertInArrayListMessage(new com.example.chat.models.Message(readMessage,false));
-                    //Actualizamos el adaptador de mensajería para que el mensaje aparezca en pantalla
+                case LEER:
+                    status.setText("Vinculado");
+                    byte[] enviado = (byte[]) msg.obj;
+                    String sMessage = new String(enviado, 0, msg.arg1);
+                    arrayListMessages.insertInArrayListMessage(new com.example.chat.models.Message(sMessage,false));
                     messageListAdapter.notifyDataSetChanged();
-                    //Reproducimos el sonido para el mensaje
-                    //sonidoMensaje.start();
-                    break;
-                case DISPOSITIVO_CONECTADO:
-                    //Obtenemos el dispositivo conectado al nuestro
-                    diviceConectado = msg.getData().getParcelable("dispositivoConectado");
                     break;
             }
-            return false;
+            return true;
         }
     });
 
+    public void editBackground(View view){
+        switch (BACKGROUND){
+            case 1:
+                mainLayout.setBackgroundResource(R.drawable.fondo2);
+                BACKGROUND = 2;
+                break;
+            case 2:
+                mainLayout.setBackgroundResource(R.drawable.fondo3);
+                BACKGROUND = 3;
+                break;
+            case 3:
+                mainLayout.setBackgroundResource(R.drawable.fondo1);
+                BACKGROUND = 1;
+                break;
+        }
+    }
+
+
+    private class ServerClass extends Thread {
+        private final BluetoothServerSocket serverSocket;
+
+        public ServerClass() {
+            BluetoothServerSocket tmp = null;
+            try {
+                tmp = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(APP_NAME, MY_UUID);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            serverSocket = tmp;
+        }
+
+        public void run() {
+            BluetoothSocket socket= null;
+            while (socket == null) {
+                try {
+                    Message message = Message.obtain();
+                    message.what= CONNECTING;
+                    handler.sendMessage(message);
+                    socket = serverSocket.accept();
+                } catch (IOException e) {
+                    Message message = Message.obtain();
+                    message.what= CONNECTION_FAILED;
+                    handler.sendMessage(message);
+                }
+
+                if(socket!=null){
+                    Message message = Message.obtain();
+                    message.what= CONNECTED;
+                    handler.sendMessage(message);
+                    sendReceive = new SendReceive(socket);
+                    sendReceive.start();
+
+                    break;
+                }
+            }
+        }
+
+        public void cancel() {
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+            }
+        }
+    }
+
+    private class ClientClass extends  Thread{
+        private BluetoothDevice bluetoothDevice;
+        private  BluetoothSocket bluetoothSocket;
+
+        public ClientClass(BluetoothDevice device){
+            bluetoothDevice = device;
+            try {
+                bluetoothSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void run(){
+            try {
+                bluetoothSocket.connect();
+                Message message = Message.obtain();
+                message.what= CONNECTED;
+                handler.sendMessage(message);
+                sendReceive = new SendReceive(bluetoothSocket);
+                sendReceive.start();
+            }catch (IOException e){
+                Message message = Message.obtain();
+                message.what= CONNECTION_FAILED;
+                handler.sendMessage(message);
+            }
+        }
+    }
+
+    private class SendReceive extends Thread{
+        private final BluetoothSocket bluetoothSocket;
+        private final InputStream inputStream;
+        private final OutputStream outputStream;
+
+        public SendReceive(BluetoothSocket socket){
+            bluetoothSocket = socket;
+            InputStream tmpIn = null;
+            OutputStream tmpOut = null;
+
+            try {
+                tmpIn = socket.getInputStream();
+                tmpOut = socket.getOutputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            inputStream = tmpIn;
+            outputStream = tmpOut;
+        }
+
+        public void run() {
+            byte[] buffer = new byte[1024];
+            int bytes;
+
+            // Keep listening to the InputStream
+            while (true) {
+                try {
+                    // Read from the InputStream
+                    bytes = inputStream.read(buffer);
+
+                    // Send the obtained bytes to the UI Activity
+                    handler.obtainMessage(LEER, bytes, -1, buffer).sendToTarget();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // write to OutputStream
+        public void write(byte[] buffer) {
+            try {
+                outputStream.write(buffer);
+                handler.obtainMessage(ESCRIBIR, -1, -1, buffer).sendToTarget();
+            } catch (IOException e) {
+            }
+        }
+
+        public void cancel() {
+            try {
+                bluetoothSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

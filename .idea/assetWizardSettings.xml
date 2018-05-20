@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/hardware/ic_smartphone_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/image/ic_brush_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -28,12 +28,12 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="height" value="128" />
-                            <entry key="opacityPercent" value="96" />
-                            <entry key="outputName" value="ic_smartphone_black_24dp" />
+                            <entry key="color" value="ffffff" />
+                            <entry key="height" value="48" />
+                            <entry key="outputName" value="ic_brush_black_24dp" />
                             <entry key="overrideSize" value="true" />
                             <entry key="sourceFile" value="C:\Users\greivin" />
-                            <entry key="width" value="128" />
+                            <entry key="width" value="48" />
                           </map>
                         </option>
                       </PersistentState>
