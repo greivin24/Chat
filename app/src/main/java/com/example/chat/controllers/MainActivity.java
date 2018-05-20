@@ -123,11 +123,9 @@ public class MainActivity extends AppCompatActivity {
                 if (!editTextMessage.getText().toString().equals("") && status.getText().equals("Conectado")) {
                     byte[] send = editTextMessage.getText().toString().getBytes();
                     if(!IS_SERVER){
-                       sendReceive = clientClass.getSendReceive();
-                       sendReceive.write(send);
+                       clientClass.getSendReceive().write(send);
                     }else{
-                        sendReceive = serverClass.getSendReceive();
-                        sendReceive.write(send);
+                        serverClass.getSendReceive().write(send);
                     }
 
                     editTextMessage.setText("");
@@ -318,14 +316,14 @@ public class MainActivity extends AppCompatActivity {
                     status.setText("Conexion Fallida");
                     break;
                 case ESCRIBIR:
-                    status.setText(temDevice.getName());
+                    //status.setText(temDevice.getName());
                     byte[] recibido = (byte[]) msg.obj;
                     String rMessage = new String(recibido);
                     arrayListMessages.insertInArrayListMessage(new com.example.chat.models.Message(rMessage,true));
                     messageListAdapter.notifyDataSetChanged();
                     break;
                 case LEER:
-                    status.setText(temDevice.getName());
+                    //status.setText(temDevice.getName());
                     byte[] enviado = (byte[]) msg.obj;
                     String sMessage = new String(enviado, 0, msg.arg1);
                     arrayListMessages.insertInArrayListMessage(new com.example.chat.models.Message(sMessage,false));
