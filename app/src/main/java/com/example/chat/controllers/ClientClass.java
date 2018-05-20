@@ -15,15 +15,18 @@ public class ClientClass extends  Thread{
     private SendReceive sendReceive;
 
 
-    public ClientClass(BluetoothDevice device, UUID uuid, SendReceive SendR){
+    public ClientClass(BluetoothDevice device, UUID uuid){
         bluetoothDevice = device;
         this.MY_UUID = uuid;
-        this.sendReceive = SendR;
         try {
             bluetoothSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public SendReceive getSendReceive() {
+        return sendReceive;
     }
 
     public void run(){

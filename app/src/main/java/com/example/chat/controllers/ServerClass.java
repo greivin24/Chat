@@ -16,16 +16,19 @@ public class ServerClass extends Thread {
 
     private SendReceive sendReceive;
 
-    public ServerClass(BluetoothAdapter adapter, UUID MY_UUID, SendReceive sendR) {
+    public ServerClass(BluetoothAdapter adapter, UUID MY_UUID) {
         BluetoothServerSocket tmp = null;
         bluetoothAdapter = adapter;
-        this.sendReceive = sendR;
         try {
             tmp = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(APP_NAME, MY_UUID);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
         serverSocket = tmp;
+    }
+
+    public SendReceive getSendReceive() {
+        return sendReceive;
     }
 
     public void run() {

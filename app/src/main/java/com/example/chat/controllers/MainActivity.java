@@ -73,8 +73,10 @@ public class MainActivity extends AppCompatActivity {
     DeviceListAdapter deviceListAdapter;
 
     //---opcion3
-    SendReceive sendReceive;
     Backgrounds backgrounds;
+    ServerClass serverClass;
+    ClientClass clientClass;
+    SendReceive sendReceive;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         radioButtonServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ServerClass serverClass = new ServerClass(bluetoothAdapter,MY_UUID,sendReceive);
+                serverClass = new ServerClass(bluetoothAdapter,MY_UUID);
                 if(!IS_SERVER){
                     serverClass.start();
                     IS_SERVER = true;
@@ -118,9 +120,16 @@ public class MainActivity extends AppCompatActivity {
         imageViewSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!editTextMessage.getText().toString().equals("")) {
+                if (!editTextMessage.getText().toString().equals("") && status.getText().equals("Conectado")) {
                     byte[] send = editTextMessage.getText().toString().getBytes();
-                    sendReceive.write(send);
+                    if(!IS_SERVER){
+                       sendReceive = clientClass.getSendReceive();
+                       sendReceive.write(send);
+                    }else{
+                        sendReceive = serverClass.getSendReceive();
+                        sendReceive.write(send);
+                    }
+
                     editTextMessage.setText("");
                 }
             }
@@ -177,8 +186,7 @@ public class MainActivity extends AppCompatActivity {
         public void onItemClick(AdapterView parent, View v, int position, long id) {
             bluetoothAdapter.cancelDiscovery();
             temDevice = arrayListDevices.getArrayListDevicesById(position);
-            //ClientClass clientClass = new ClientClass(arrayListDevices.getArrayListDevicesById(position));
-            ClientClass clientClass = new ClientClass(arrayListDevices.getArrayListDevicesById(position),MY_UUID,sendReceive);
+            clientClass = new ClientClass(arrayListDevices.getArrayListDevicesById(position),MY_UUID);
             clientClass.start();
             status.setText("Connecting");
             chatBluetooth();
@@ -328,5 +336,5 @@ public class MainActivity extends AppCompatActivity {
         }
     });
 
-    
+
 }
