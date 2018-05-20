@@ -3,6 +3,8 @@ package com.example.chat.utilities;
 import com.example.chat.models.Message;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class ArrayListMessages {
 
@@ -13,7 +15,9 @@ public class ArrayListMessages {
     }
 
     public ArrayList<Message> getArrayListMessages() {
-        return arrayListMessages;
+        ArrayList<Message> tem = arrayListMessages;
+        Collections.reverse(tem);
+        return tem;
     }
 
     public void insertInArrayListMessage(Message message){
