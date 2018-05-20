@@ -21,7 +21,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Servidor" />
+            android:text="Servidor"
+            android:textColor="@color/colorBlanco"/>
 
         <TextView
             android:id="@+id/txv_estado"
@@ -29,19 +30,19 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="estado"
-            android:textColor="@color/colorNegro" />
+            android:textColor="@color/colorBlanco" />
 
         <ImageView
             android:id="@+id/imageViewEdit"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0"
-            android:src="@drawable/ic_brush_black_24dp"
-            android:onClick="editBackground"/>
+            android:src="@drawable/ic_brush_black_24dp"/>
 
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
@@ -53,7 +54,7 @@
         <LinearLayout
             android:id="@+id/layout_chat"
             android:layout_width="match_parent"
-            android:layout_height="360dp"
+            android:layout_height="311dp"
             android:layout_margin="20dp"
             android:layout_marginBottom="5dp"
             android:layout_marginEnd="5dp"
@@ -71,29 +72,6 @@
 
             </ListView>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <EditText
-                    android:id="@+id/editTextMessage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:hint="Escribir Mensaje"
-                    android:inputType="textPersonName" />
-
-                <ImageView
-                    android:id="@+id/imageViewSend"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_near_me_black_24dp" />
-
-            </LinearLayout>
 
         </LinearLayout>
 
@@ -122,6 +100,39 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/linearLayoutSend"
+        android:layout_width="match_parent"
+        android:layout_height="51dp"
+        android:layout_margin="@dimen/dmn_20"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/navigation"
+        app:layout_constraintEnd_toStartOf="@+id/linearLayout2"
+        app:layout_constraintStart_toEndOf="@+id/linearLayout2"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
+        app:layout_constraintVertical_bias="1.0">
+
+        <EditText
+            android:id="@+id/editTextMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="Escribir Mensaje"
+            android:inputType="textPersonName" />
+
+        <ImageView
+            android:id="@+id/imageViewSend"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_near_me_black_24dp" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/navigation"
@@ -165,7 +176,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="ChatBluetooth"
-                android:textColor="@color/colorNegro"/>
+                android:textColor="@color/colorBlanco"/>
 
             <TextView
                 android:id="@+id/textView3"
@@ -174,7 +185,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="Search Device"
-                android:textColor="@color/colorNegro"/>
+                android:textColor="@color/colorBlanco"/>
         </LinearLayout>
 
     </LinearLayout>
