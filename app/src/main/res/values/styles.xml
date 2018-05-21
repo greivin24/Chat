@@ -28,4 +28,114 @@
         <item name="android:background">@drawable/mensaje_enviado</item>
     </style>
 
+
+    <style name="generic_linear_layaout_horizontal">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="generic_linear_layaout_extends">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <style name="generic_text_item">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/colorBlanco</item>
+    </style>
+
+    <style name="generic_radiobutton" parent="generic_text_item">
+    </style>
+
+
+    <style name="generic_image_item">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+
+
+    <style name="generic_linear_layaout_vertical">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/dmn_6</item>
+    </style>
+
+    <style name="generic_linear_layaout_vertical_chat">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/chat_height</item>
+        <item name="android:layout_margin">@dimen/chat_margin</item>
+        <item name="android:layout_marginBottom">@dimen/chat_margin_BottomEnd</item>
+        <item name="android:layout_marginEnd">@dimen/chat_margin_BottomEnd</item>
+        <item name="android:layout_marginStart">@dimen/chat_margin</item>
+        <item name="android:layout_marginTop">@dimen/chat_margin_top</item>
+    </style>
+
+    <style name="generic_listview_chat">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/chat_inner_height</item>
+    </style>
+
+    <style name="generic_listview_device">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="linear_layaout_vertical_send">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/send_height</item>
+        <item name="android:layout_margin">@dimen/chat_margin</item>
+        <item name="android:layout_marginBottom">@dimen/send_margin_BottomEnd</item>
+        <item name="android:layout_marginEnd">@dimen/chat_margin</item>
+        <item name="android:layout_marginStart">@dimen/chat_margin</item>
+        <item name="android:layout_marginTop">@dimen/chat_margin</item>
+    </style>
+
+    <style name="send_text_item">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="linear_layaout_vertical_device">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/device_height</item>
+        <item name="android:layout_margin">@dimen/device_margin</item>
+        <item name="android:layout_marginBottom">@dimen/device_margin_Bottom</item>
+        <item name="android:layout_marginEnd">@dimen/device_margin_End</item>
+        <item name="android:layout_marginStart">@dimen/device_margin_start</item>
+        <item name="android:layout_marginTop">@dimen/device_margin_top</item>
+    </style>
+
+    <style name="device_generic_text">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="device_generic_text_principal" parent="device_generic_text">
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">@dimen/dmn_24</item>
+    </style>
+
+    <style name="device_generic_text_black" parent="device_generic_text">
+        <item name="android:textColor">@color/colorNegro</item>
+    </style>
+
+    <style name="device_parent_layout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">@dimen/dmn_20</item>
+    </style>
+
+    <style name="device_linear_layaout_vertical">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <style name="device_image_item">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/dmn_80</item>
+    </style>
+
+
 </resources>

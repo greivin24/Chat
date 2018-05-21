@@ -2,4 +2,12 @@
     <string name="app_name">Chat</string>
     <string name="title_chat">ChatBluetooth</string>
     <string name="title_Vinculacion">Search Device</string>
+    <string name="main_server_esp">Servidor</string>
+    <string name="main_status_esp">estado</string>
+
+    <string name="main_mensg_hint_esp">Escribir Mensaje</string>
+    <string name="main_txt_chat">ChatBluetooth</string>
+    <string name="main_txt_search">Search Device</string>
+
+
 </resources>

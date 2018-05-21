@@ -2,40 +2,34 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="20dp">
+    style="@style/device_parent_layout"
+    >
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="80dp"
+        style="@style/device_image_item"
         android:layout_weight="1"
         android:src="@drawable/ic_smartphone_black_24dp"/>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        style="@style/device_linear_layaout_vertical"
         android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvDeviceName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            style="@style/device_generic_text_principal"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:textColor="@color/colorPrincipal"
-            android:textSize="25dp" />
+         />
 
         <TextView
             android:id="@+id/tvDeviceAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            style="@style/device_generic_text_black"
             android:layout_weight="1"
             android:gravity="center"
-            android:textColor="@color/colorNegro"/>
+            />
     </LinearLayout>
 
 

@@ -12,30 +12,24 @@
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/generic_linear_layaout_horizontal"
         android:orientation="horizontal">
 
         <RadioButton
             android:id="@+id/radioButtonServidor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/generic_radiobutton"
             android:layout_weight="1"
-            android:text="Servidor"
-            android:textColor="@color/colorBlanco"/>
+            android:text="@string/main_server_esp"/>
 
         <TextView
             android:id="@+id/txv_estado"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/generic_text_item"
             android:layout_weight="1"
-            android:text="estado"
-            android:textColor="@color/colorBlanco" />
+            android:text="estado" />
 
         <ImageView
             android:id="@+id/imageViewEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            style="@style/generic_image_item"
             android:layout_weight="0"
             android:src="@drawable/ic_brush_black_24dp"/>
 
@@ -43,9 +37,7 @@
 
     <LinearLayout
         android:id="@+id/linearLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        style="@style/generic_linear_layaout_vertical"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -53,13 +45,7 @@
 
         <LinearLayout
             android:id="@+id/layout_chat"
-            android:layout_width="match_parent"
-            android:layout_height="311dp"
-            android:layout_margin="20dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
+            style="@style/generic_linear_layaout_vertical_chat"
             android:orientation="vertical"
             app:layout_constraintBottom_toTopOf="@+id/navigation"
             app:layout_constraintEnd_toStartOf="@+id/navigation"
@@ -67,8 +53,8 @@
 
             <ListView
                 android:id="@+id/list_item_mensaje"
-                android:layout_width="match_parent"
-                android:layout_height="310dp">
+                style="@style/generic_listview_chat"
+                >
 
             </ListView>
 
@@ -77,13 +63,8 @@
 
         <LinearLayout
             android:id="@+id/layout_device"
-            android:layout_width="match_parent"
-            android:layout_height="360dp"
-            android:layout_margin="20dp"
-            android:layout_marginBottom="6dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="9dp"
+
+            style="@style/linear_layaout_vertical_device"
             android:orientation="vertical"
             app:layout_constraintBottom_toTopOf="@+id/navigation"
             app:layout_constraintEnd_toEndOf="parent"
@@ -102,13 +83,7 @@
 
     <LinearLayout
         android:id="@+id/linearLayoutSend"
-        android:layout_width="match_parent"
-        android:layout_height="51dp"
-        android:layout_margin="@dimen/dmn_20"
-        android:layout_marginBottom="10dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
+        style="@style/linear_layaout_vertical_send"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/navigation"
         app:layout_constraintEnd_toStartOf="@+id/linearLayout2"

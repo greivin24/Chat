@@ -8,6 +8,7 @@
     <dimen name="dmn_2">2dp</dimen>
     <dimen name="dmn_4">4dp</dimen>
     <dimen name="dmn_5">5dp</dimen>
+    <dimen name="dmn_6">5dp</dimen>
     <dimen name="dmn_7">7dp</dimen>
     <dimen name="dmn_8">8dp</dimen>
     <dimen name="dmn_10">10dp</dimen>
@@ -22,6 +23,26 @@
     <dimen name="dmn_40">40dp</dimen>
     <dimen name="dmn_45">45dp</dimen>
     <dimen name="dmn_60">60dp</dimen>
+    <dimen name="dmn_80">80dp</dimen>
     <dimen name="dmnx_2">2px</dimen>
+
+    <dimen name="chat_height">311dp</dimen>
+    <dimen name="send_height">51dp</dimen>
+    <dimen name="chat_margin">20dp</dimen>
+    <dimen name="chat_margin_BottomEnd">5dp</dimen>
+    <dimen name="chat_margin_top">10dp</dimen>
+    <dimen name="chat_inner_height">310dp</dimen>
+
+    <dimen name="send_margin_BottomEnd">10dp</dimen>
+    <dimen name="send_margin_top">10dp</dimen>
+    <dimen name="send_inner_height">310dp</dimen>
+
+    <dimen name="device_height">360dp</dimen>
+    <dimen name="device_margin">20dp</dimen>
+    <dimen name="device_margin_Bottom">6dp</dimen>
+    <dimen name="device_margin_End">20dp</dimen>
+    <dimen name="device_margin_top">9dp</dimen>
+    <dimen name="device_margin_start">20dp</dimen>
+
 
 </resources>
